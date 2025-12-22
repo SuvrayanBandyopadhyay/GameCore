@@ -6,6 +6,7 @@
 #include<typeinfo>
 #include<typeindex>
 #include <stdexcept>
+#include<stack>
 #include"SparseSet.hpp"
 /*
 Sparsets represent an entire array of similar attributes e.g coordinates, speeds,etc.
@@ -55,14 +56,19 @@ public:
 class World
 {
 private:
-	//The registry mapping size_t to a container
-	std::unordered_map<size_t, std::unique_ptr<ISparseContainer>>components;
-	std::unordered_map<size_t, std::unique_ptr<IField>>fields;
+	//The registry mapping type_index to a container
+	std::unordered_map<std::type_index, std::unique_ptr<ISparseContainer>>components;
+	std::unordered_map<std::type_index, std::unique_ptr<IField>>fields;
+	//List of free id for reusability
+	std::stack<unsigned int> free_ids;
+	//The next id to assign
+	unsigned int next_id=0;
+
 	//A helper funciton which return the component
 	template<typename T>
 	SparseSet<T>* _getComponent() 
 	{
-		size_t id = typeid(T).hash_code();
+		std::type_index id = typeid(T);
 		auto it = components.find(id);
 		if (it == components.end()) 
 		{
@@ -75,7 +81,7 @@ private:
 	template<typename T>
 	Field<T>* _getField() 
 	{
-		size_t id = typeid(T).hash_code();
+		std::type_index id = typeid(T);
 		auto it = fields.find(id);
 		if (it == fields.end())
 		{
@@ -84,46 +90,81 @@ private:
 		return static_cast<Field<T>*>(it->second.get());
 	}
 public:
-	//Get Component
 	template<typename T>
-	SparseSet<T>& getComponent() 
-	{
-		//Static caching
-		static SparseSet<T>* result = (_getComponent<T>());
-		return *result;
-	}
-	//Update Component
+	SparseSet<T>& getComponent();
 	template<typename T>
-	void update(unsigned int ent, T data) 
-	{
-		auto& set =  getComponent<T>();
-		set.update(ent, data);
-	}
-	//Clear Component
+	void update(unsigned int ent, T data);
 	template<typename T>
-	void clear(unsigned int ent) 
-	{
-		auto& set = getComponent<T>();
-		set.clear(ent);
-	}
-	//Get entity value
+	void clear(unsigned int ent);
 	template<typename T>
-	T& get(int ent)
-	{
-		auto& set = getComponent<T>();
-		return *set.get(ent);
-	}
-	//Get field value
+	T& get(int ent);
 	template<typename T>
-	T& getField()
-	{
-		static T* result = &(_getField<T>()->data);
-		return *result;
-	}
-	//Set field value
+	T& getField();
 	template<typename T>
-	void setField(T data)
-	{
-		(_getField<T>()->data) = data;
-	}
+	void setField(T data);
+	unsigned int createEntity();
+	void erase(unsigned int ent);
+	
 };
+
+///<summary>
+///Returns a sparse set reference to the component
+///</summary>
+template<typename T>
+SparseSet<T>& World::getComponent()
+{
+	//Static caching
+	SparseSet<T>* result = (_getComponent<T>());
+	return *result;
+}
+
+///<summary>
+///Updates the component of an entity
+///</summary>
+template<typename T>
+void World::update(unsigned int ent, T data)
+{
+	auto& set = getComponent<T>();
+	set.update(ent, data);
+}
+
+///<summary>
+///Deletes a component of an entity if it exists
+///</summary>
+template<typename T>
+void World::clear(unsigned int ent)
+{
+	auto& set = getComponent<T>();
+	set.clear(ent);
+}
+
+///<summary>
+///Returns a reference to the component of an entity
+///</summary>
+template<typename T>
+T& World::get(int ent)
+{
+	auto& set = getComponent<T>();
+	return *set.get(ent);
+}
+
+///<summary>
+///Returns a reference to a field
+///</summary>
+template<typename T>
+T& World::getField()
+{
+	T* result = &(_getField<T>()->data);
+	return *result;
+}
+
+///<summary>
+///Sets the value of a field
+///</summary>
+template<typename T>
+void World::setField(T data)
+{
+	(_getField<T>()->data) = data;
+}
+
+
