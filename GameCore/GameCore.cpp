@@ -2,19 +2,64 @@
 //
 
 #include <iostream>
+#include<chrono>
+#include"World.hpp"
+#include"LuaScript.hpp"
+
+struct health 
+{
+	float h;
+};
+
+struct damage 
+{
+	float d;
+};
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	World w;
+	int ent = -1;
+	auto start = std::chrono::steady_clock::now();
+	const float limit = 10000000;
+	for (int i = 0; i < limit; i++) 
+	{
+		ent = w.createEntity();
+		w.update<health>(ent, health{ 100.32+32.2+11.2 });
+	}
+	auto end = std::chrono::steady_clock::now();
+	auto elapsed_ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cout << "Elapsed time: " << elapsed_ms.count() << " nanoseconds" << std::endl;
+	std::cout << "Average time: " << elapsed_ms.count()/limit << " nanoseconds" << std::endl;
+
+	ent = -1;
+	start = std::chrono::steady_clock::now();
+	auto& h = w.getComponent<health>();
+	for (int i = 0; i < h.dense.size(); i++)
+	{
+		int ent = h.dense[i];
+		h.update(ent, health{ 131 });
+	}
+	end = std::chrono::steady_clock::now();
+	elapsed_ms = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+	std::cout << "Elapsed time: " << elapsed_ms.count() << " nanoseconds" << std::endl;
+	std::cout << "Average time: " << elapsed_ms.count() / limit << " nanoseconds" << std::endl;
+
+	LuaScript script;
+	script.loadString(R"(
+function test(a, b)
+    return a+b,"Hello",1
+end
+)");
+
+	script.run("test", 3, 5, 7);
+
+	bool flag = script.getReturn<bool>();        // true
+	std::string msg = script.getReturn<std::string>(); // "hello"
+	int sum = script.getReturn<int>();          // 12
+	
+	
+
+	std::cout << sum << "," << msg << "," << flag << std::endl;
+
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

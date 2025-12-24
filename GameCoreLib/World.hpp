@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include<stack>
 #include"SparseSet.hpp"
+
 /*
 Sparsets represent an entire array of similar attributes e.g coordinates, speeds,etc.
 Fields are single values which dont need a sparset of their own
@@ -17,7 +18,7 @@ class ISparseContainer
 public:
 	virtual ~ISparseContainer() = default;
 	virtual std::type_index type() = 0;
-	virtual void clear(int entity) = 0;
+	virtual void erase(int entity) = 0;
 };
 
 template<typename T>
@@ -29,9 +30,9 @@ public:
 	{
 		return typeid(T);
 	}
-	void clear(int entity) override
+	void erase(int entity) override
 	{
-		set.clear(entity);
+		set.erase(entity);
 	}
 };
 
@@ -53,42 +54,22 @@ public:
 	}
 };
 
+//Global variables
+inline unsigned int next_component = 0;//Next component to assign
+inline unsigned int next_field = 0;//Next field to assign
+
 class World
 {
 private:
 	//The registry mapping type_index to a container
-	std::unordered_map<std::type_index, std::unique_ptr<ISparseContainer>>components;
-	std::unordered_map<std::type_index, std::unique_ptr<IField>>fields;
+	std::vector<std::unique_ptr<ISparseContainer>>components;
+	std::vector<std::unique_ptr<IField>>fields;
 	//List of free id for reusability
 	std::stack<unsigned int> free_ids;
 	//The next id to assign
-	unsigned int next_id=0;
+	unsigned int next_id = 0;
 
-	//A helper funciton which return the component
-	template<typename T>
-	SparseSet<T>* _getComponent() 
-	{
-		std::type_index id = typeid(T);
-		auto it = components.find(id);
-		if (it == components.end()) 
-		{
-			it = components.emplace(id, std::make_unique<SparseContainer<T>>()).first;
-		}
-		return &(static_cast<SparseContainer<T>*>(it->second.get()))->set;
-
-	}
-	//A helper function to return fields
-	template<typename T>
-	Field<T>* _getField() 
-	{
-		std::type_index id = typeid(T);
-		auto it = fields.find(id);
-		if (it == fields.end())
-		{
-			it = fields.emplace(id, std::make_unique<Field<T>>()).first;
-		}
-		return static_cast<Field<T>*>(it->second.get());
-	}
+	
 public:
 	template<typename T>
 	SparseSet<T>& getComponent();
@@ -113,9 +94,16 @@ public:
 template<typename T>
 SparseSet<T>& World::getComponent()
 {
-	//Static caching
-	SparseSet<T>* result = (_getComponent<T>());
-	return *result;
+	static unsigned int id = next_component++;
+	if (id >= components.size()) 
+	{
+		components.resize(id + 1);
+	}
+	if (!components[id]) 
+	{
+		components[id] = std::make_unique<SparseContainer<T>>();
+	}
+	return static_cast<SparseContainer<T>*>(components[id].get())->set;
 }
 
 ///<summary>
@@ -154,8 +142,16 @@ T& World::get(int ent)
 template<typename T>
 T& World::getField()
 {
-	T* result = &(_getField<T>()->data);
-	return *result;
+	static unsigned int id = next_field++;
+	if (id >= fields.size())
+	{
+		fields.resize(id + 1);
+	}
+	if (!fields[id])
+	{
+		fields[id] = std::make_unique<Field<T>>();
+	}
+	return static_cast<Field<T>*>(fields[id].get())->data;
 }
 
 ///<summary>
@@ -164,7 +160,7 @@ T& World::getField()
 template<typename T>
 void World::setField(T data)
 {
-	(_getField<T>()->data) = data;
+	(getField<T>()) = data;
 }
 
 

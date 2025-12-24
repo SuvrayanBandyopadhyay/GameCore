@@ -1,4 +1,6 @@
+#include "pch.h"
 #include"World.hpp"
+
 ///<summary>
 ///Sets the value of a field
 ///</summary>
@@ -20,7 +22,7 @@ void World::erase(unsigned int ent)
 {
 	for (auto& i : components)
 	{
-		i.second->clear(ent);
+		i->erase(ent);
 	}
 	free_ids.push(ent);
 }

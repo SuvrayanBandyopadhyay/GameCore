@@ -6,19 +6,16 @@ template<typename T>
 class SparseSet 
 {
 public:
-	std::vector<int>sparse;
-	std::vector<int>dense;
+	std::vector<unsigned int>sparse;
+	std::vector<unsigned int>dense;
 	std::vector<T>data;
-
 	void addEntity(unsigned int ent, T d);
 	bool find(unsigned int ent);
+	void remove(unsigned int ent);
 	void erase(unsigned int ent);
-	void clear(unsigned int ent);
 	void update(unsigned int ent, T new_data);
 	T* get(unsigned int ent);
 };
-
-
 
 //Insert operation
 template<typename T>
@@ -60,7 +57,7 @@ void SparseSet<T>::update(unsigned int ent, T new_data)
 }
 //Deletion with error if element does not exist
 template<typename T>
-void SparseSet<T>::erase(unsigned int ent)
+void SparseSet<T>::remove(unsigned int ent)
 {
 	if (ent < sparse.size() && sparse[ent] != -1)
 	{
@@ -84,7 +81,7 @@ void SparseSet<T>::erase(unsigned int ent)
 }
 //Deletion without error
 template<typename T>
-void SparseSet<T>::clear(unsigned int ent)
+void SparseSet<T>::erase(unsigned int ent)
 {
 	if (ent < sparse.size() && sparse[ent] != -1)
 	{

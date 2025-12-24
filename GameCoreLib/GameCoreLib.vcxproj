@@ -21,33 +21,32 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{3e2dcfe5-9925-4c98-b315-d3324a7ab9bd}</ProjectGuid>
-    <RootNamespace>GameCore</RootNamespace>
+    <ProjectGuid>{47b064ab-20f9-4142-bb12-cc09212ca059}</ProjectGuid>
+    <RootNamespace>GameCoreLib</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>GameCore</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -75,16 +74,17 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Game Development\GameCore\GameCoreLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameCoreLib.lib;luajit.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -93,34 +93,34 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Game Development\GameCore\GameCoreLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameCoreLib.lib;lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Game Development\GameCore\GameCoreLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameCoreLib.lib;luajit.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -129,22 +129,95 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <FloatingPointModel>Precise</FloatingPointModel>
-      <AdditionalIncludeDirectories>C:\Users\Dell\Documents\Programming\Game Development\GameCore\GameCoreLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>
+      </SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameCoreLib.lib;lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="GameCore.cpp" />
+    <ClInclude Include="LuaScript.hpp" />
+    <ClInclude Include="lua\lapi.h" />
+    <ClInclude Include="lua\lauxlib.h" />
+    <ClInclude Include="lua\lcode.h" />
+    <ClInclude Include="lua\lctype.h" />
+    <ClInclude Include="lua\ldebug.h" />
+    <ClInclude Include="lua\ldo.h" />
+    <ClInclude Include="lua\lfunc.h" />
+    <ClInclude Include="lua\lgc.h" />
+    <ClInclude Include="lua\ljumptab.h" />
+    <ClInclude Include="lua\llex.h" />
+    <ClInclude Include="lua\llimits.h" />
+    <ClInclude Include="lua\lmem.h" />
+    <ClInclude Include="lua\lobject.h" />
+    <ClInclude Include="lua\lopcodes.h" />
+    <ClInclude Include="lua\lopnames.h" />
+    <ClInclude Include="lua\lparser.h" />
+    <ClInclude Include="lua\lprefix.h" />
+    <ClInclude Include="lua\lstate.h" />
+    <ClInclude Include="lua\lstring.h" />
+    <ClInclude Include="lua\ltable.h" />
+    <ClInclude Include="lua\ltm.h" />
+    <ClInclude Include="lua\lua.h" />
+    <ClInclude Include="lua\lua.hpp" />
+    <ClInclude Include="lua\luaconf.h" />
+    <ClInclude Include="lua\lualib.h" />
+    <ClInclude Include="lua\lundump.h" />
+    <ClInclude Include="lua\lvm.h" />
+    <ClInclude Include="lua\lzio.h" />
+    <ClInclude Include="SparseSet.hpp" />
+    <ClInclude Include="World.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LuaScript.cpp" />
+    <ClCompile Include="lua\lapi.c" />
+    <ClCompile Include="lua\lauxlib.c" />
+    <ClCompile Include="lua\lbaselib.c" />
+    <ClCompile Include="lua\lcode.c" />
+    <ClCompile Include="lua\lcorolib.c" />
+    <ClCompile Include="lua\lctype.c" />
+    <ClCompile Include="lua\ldblib.c" />
+    <ClCompile Include="lua\ldebug.c" />
+    <ClCompile Include="lua\ldo.c" />
+    <ClCompile Include="lua\ldump.c" />
+    <ClCompile Include="lua\lfunc.c" />
+    <ClCompile Include="lua\lgc.c" />
+    <ClCompile Include="lua\linit.c" />
+    <ClCompile Include="lua\liolib.c" />
+    <ClCompile Include="lua\llex.c" />
+    <ClCompile Include="lua\lmathlib.c" />
+    <ClCompile Include="lua\lmem.c" />
+    <ClCompile Include="lua\loadlib.c" />
+    <ClCompile Include="lua\lobject.c" />
+    <ClCompile Include="lua\lopcodes.c" />
+    <ClCompile Include="lua\loslib.c" />
+    <ClCompile Include="lua\lparser.c" />
+    <ClCompile Include="lua\lstate.c" />
+    <ClCompile Include="lua\lstring.c" />
+    <ClCompile Include="lua\lstrlib.c" />
+    <ClCompile Include="lua\ltable.c" />
+    <ClCompile Include="lua\ltablib.c" />
+    <ClCompile Include="lua\ltm.c" />
+    <ClCompile Include="lua\lua.c" />
+    <ClCompile Include="lua\luac.c" />
+    <ClCompile Include="lua\lundump.c" />
+    <ClCompile Include="lua\lutf8lib.c" />
+    <ClCompile Include="lua\lvm.c" />
+    <ClCompile Include="lua\lzio.c" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
