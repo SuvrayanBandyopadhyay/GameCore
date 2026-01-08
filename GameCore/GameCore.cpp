@@ -16,6 +16,75 @@ struct damage
 	float d;
 };
 
+struct Vec2 
+{
+	float x;
+	float y;
+};
+
+struct Enemy 
+{
+	Vec2 pos;
+	float health;
+};
+
+template<>
+struct LuaType<Vec2> 
+{
+	static void push(lua_State* L, const Vec2& v)
+	{
+		lua_newtable(L);
+
+		LuaValue<float>::push(L, v.x, "x");
+		LuaValue<float>::push(L, v.y, "y");
+	}
+
+	static Vec2 get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		Vec2 v{};
+
+		lua_getfield(L, index, "x");
+		v.x = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		lua_getfield(L, index, "y");
+		v.y = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		return v;
+	}
+};
+
+template<>
+struct LuaType<Enemy>
+{
+	static void push(lua_State* L, const Enemy& e)
+	{
+		lua_newtable(L);
+
+		LuaValue<Vec2>::push(L, e.pos, "pos");
+		LuaValue<float>::push(L, e.health, "health");
+	}
+
+	static Enemy get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		Enemy e{};
+
+		lua_getfield(L, index, "pos");
+		e.pos = LuaValue<Vec2>::get(L, -1);
+		lua_pop(L, 1);
+
+		lua_getfield(L, index, "health");
+		e.health = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		return e;
+	}
+};
+
+
 int main()
 {
 	World w;
@@ -46,20 +115,31 @@ int main()
 	std::cout << "Average time: " << elapsed_ms.count() / limit << " nanoseconds" << std::endl;
 
 	LuaScript script;
-	script.loadString(R"(
-function test(a, b)
-    return a+b,"Hello",1
-end
-)");
-
-	script.run("test", 3, 5, 7);
+	script.loadFile("C:/Users/Dell/Documents/Programming/Game Development/GameCore/x64/Debug/l.lua");
+	script.run("test", 3, 51, 7);
 
 	bool flag = script.getReturn<bool>();        // true
 	std::string msg = script.getReturn<std::string>(); // "hello"
 	int sum = script.getReturn<int>();          // 12
-	
-	
+	std::cout << sum << "," << msg << "," << flag << std::endl;
+
+	script.run("test", 3, 52, 7);
+	flag = script.getReturn<bool>();        // true
+	msg = script.getReturn<std::string>(); // "hello"
+	sum = script.getReturn<int>();          // 12
+
 
 	std::cout << sum << "," << msg << "," << flag << std::endl;
 
+	LuaScript lua;
+	lua.loadFile("enemy.lua");
+	Enemy enemy{ {100.0f,50.0f},100.0f };
+	lua.run("update_enemy",1, enemy);
+	Enemy updated = lua.getReturn<Enemy>();
+
+	printf("Pos: %.1f %.1f\n", updated.pos.x, updated.pos.y);
+	printf("Health: %.1f\n", updated.health);
+
+	
+	system("PAUSE");
 }

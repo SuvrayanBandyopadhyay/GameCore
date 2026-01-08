@@ -37,3 +37,8 @@ bool LuaScript::loadFile(std::string filename)
 	type = 1;
 	return true;
 }
+
+lua_State* LuaScript::state()
+{
+	return L;
+}

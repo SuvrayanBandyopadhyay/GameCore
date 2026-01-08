@@ -7,13 +7,72 @@ extern "C"
 #include "lua/lualib.h"
 #include "lua/lauxlib.h"
 }
+//Declaration for generic lua objects
+template<typename T>
+struct LuaType 
+{
+	static void push(lua_State* L, const T&) 
+	{
+		static_assert(sizeof(T) == 0, "LuaType<T>::push not implemneted for this type");
+	}
+	static void get(lua_State* L, const T&)
+	{
+		static_assert(sizeof(T) == 0, "LuaType<T>::get not implemneted for this type");
+	}
+};
 
+//Declaration for LuaValues
+template<typename T>
+struct LuaValue 
+{
+	static void push(lua_State* L, const T& v) 
+	{
+		if constexpr (std::is_arithmetic_v<T>)
+			lua_pushnumber(L, (lua_Number)v);
+		else if constexpr (std::is_same_v<T, bool>)
+			lua_pushboolean(L, (lua_Number)v);
+		else if constexpr (std::is_same_v<T, std::string>)
+			lua_pushstring(L, v.c_str());
+		else
+			LuaType<T>::push(L, v);//Push a struct
+	}
+	//Push with name
+	static void push(lua_State* L, const T& v, std::string name) 
+	{
+		push(L, v);
+		lua_setfield(L, -2, name.c_str());
+	}
+	//Get value
+	static T get(lua_State* L, int idx) 
+	{
+		if constexpr (std::is_arithmetic_v<T>) 
+		{
+			return (T)luaL_checknumber(L, idx);
+		}
+		else if constexpr (std::is_same_v<T, bool>) 
+		{
+			return lua_toboolean(L, idx);
+		}
+		else if constexpr (std::is_same_v<T, std::string>) 
+		{
+			return luaL_checkstring(L, idx);
+		}
+		else 
+		{
+			return LuaType<T>::get(L, idx);
+		}
+	}
+};
+
+//Script class
 class LuaScript
 {
 private:
 	lua_State* L;
 	char* script;//Can be a string or a filename
 	bool type; //0-> String 1-> File
+	template<typename T>
+	void pushOne(const T& value);
 	template<typename T, typename... Args>
 	void pushToLua(T value, Args... args);
 public:
@@ -25,38 +84,19 @@ public:
 	void run(std::string function, int rets, Args... args);
 	template<typename Ret>
 	Ret getReturn();
+	lua_State* state();
 };
+template<typename T>
+void LuaScript::pushOne(const T& value) 
+{
+	LuaValue<T>::push(L, value);
+}
 
 template<typename T, typename... Args>
 void LuaScript::pushToLua(T value, Args... args)
 {
-	//If its arithmetic
-	if constexpr (std::is_arithmetic_v<T>)
-	{
-		lua_pushnumber(L, static_cast<lua_Number>(value));
-	}
-	//For bools
-	else if constexpr (std::is_same_v<T, bool>)
-	{
-		lua_pushboolean(L, value);
-	}
-	//For strings
-	else if constexpr (std::is_same_v<T, std::string>)
-	{
-		lua_pushstring(L, value.c_str());
-	}
-	//For const char *
-	else if constexpr (std::is_same_v<T, const char *>)
-	{
-		lua_pushstring(L, value);
-	}
-	else
-	{
-		//Use static assert to print an error
-		static_assert(sizeof(T) == 0, "Unsupported type for Lua push");
-	}
-	//For the remaining args
-	if constexpr (sizeof...(args) > 0)
+	pushOne(value);
+	if constexpr (sizeof...(args) > 0) 
 	{
 		pushToLua(args...);
 	}
@@ -65,6 +105,7 @@ void LuaScript::pushToLua(T value, Args... args)
 template<typename... Args>
 void LuaScript::run(std::string funcName,int rets,Args... args) 
 {
+	
 	lua_getglobal(L, funcName.c_str());
 	pushToLua(args...);
 
@@ -81,35 +122,8 @@ void LuaScript::run(std::string funcName,int rets,Args... args)
 template<typename T>
 T LuaScript::getReturn() 
 {
-	T ret{};
-	if constexpr (std::is_arithmetic_v<T>)
-	{
-		if (lua_isnumber(L, -1))
-		{
-			ret = static_cast<T>(lua_tonumber(L, -1));
-		}
-	}
-	//For bools
-	else if constexpr (std::is_same_v<T, bool>)
-	{
-		if (lua_isboolean(L, -1))
-		{
-			ret = static_cast<T>(lua_toboolean(L, -1));
-		};
-	}
-	//For strings
-	else if constexpr (std::is_same_v<T, std::string>)
-	{
-		if (lua_isstring(L, -1))
-		{
-			ret = static_cast<T>(lua_tostring(L, -1));
-		}
-	}
-	else
-	{
-		//Use static assert to print an error
-		static_assert(sizeof(T) == 0, "Unsupported type for Lua push");
-	}
+	T value = LuaValue<T>::get(L, -1);
 	lua_pop(L, 1);
-	return ret;
+	return value;
 }
+
