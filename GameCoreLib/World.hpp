@@ -54,9 +54,7 @@ public:
 	}
 };
 
-//Global variables
-inline unsigned int next_component = 0;//Next component to assign
-inline unsigned int next_field = 0;//Next field to assign
+
 
 class World
 {
@@ -68,7 +66,11 @@ private:
 	std::stack<unsigned int> free_ids;
 	//The next id to assign
 	unsigned int next_id = 0;
-
+	unsigned int next_component = 0;//Next component to assign
+	unsigned int next_field = 0;//Next field to assign
+	//Function to get unique ids for each field
+	template<typename T>
+	unsigned int getFieldID();
 	
 public:
 	template<typename T>
@@ -83,11 +85,14 @@ public:
 	T& getField();
 	template<typename T>
 	void setField(T data);
+	template<typename T>
+	bool fieldExists();
+	template<typename T>
+	void deleteField();
 	unsigned int createEntity();
 	void erase(unsigned int ent);
 	
 };
-
 ///<summary>
 ///Returns a sparse set reference to the component
 ///</summary>
@@ -137,12 +142,46 @@ T& World::get(int ent)
 }
 
 ///<summary>
+///Returns a unique identity for the component
+///</summary>
+template<typename T>
+unsigned int World::getFieldID()
+{
+	static unsigned int id = next_component++;
+	return id;
+}
+
+///<summary>
+///Checks if a field exists
+///</summary>
+template<typename T>
+bool World::fieldExists()
+{
+	static unsigned int id = getFieldID<T>();
+	if (!fields[id]) 
+	{
+		return false;
+	}
+	return true;
+}
+
+///<summary>
+///Checks if a field exists
+///</summary>
+template<typename T>
+void World::deleteField()
+{
+	static unsigned int id = getFieldID<T>();
+	fields[id].reset();
+}
+
+///<summary>
 ///Returns a reference to a field
 ///</summary>
 template<typename T>
 T& World::getField()
 {
-	static unsigned int id = next_field++;
+	static unsigned int id = getFieldID<T>();
 	if (id >= fields.size())
 	{
 		fields.resize(id + 1);

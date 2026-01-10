@@ -84,6 +84,23 @@ struct LuaType<Enemy>
 	}
 };
 
+class pos 
+{
+	
+public:
+	float x;
+	float y;
+	pos() 
+	{
+		x = 0;
+		y = 0;
+	}
+	pos(float a,float b) 
+	{
+		x = a;
+		y = b;
+	}
+};
 
 int main()
 {
@@ -131,6 +148,7 @@ int main()
 
 	std::cout << sum << "," << msg << "," << flag << std::endl;
 
+	
 	LuaScript lua;
 	lua.loadFile("enemy.lua");
 	Enemy enemy{ {100.0f,50.0f},100.0f };
@@ -139,7 +157,17 @@ int main()
 
 	printf("Pos: %.1f %.1f\n", updated.pos.x, updated.pos.y);
 	printf("Health: %.1f\n", updated.health);
-
+	
+	pos p(2,3);
+	w.setField<pos>(p);
+	std::cout<<w.getField<pos>().x << std::endl;
+	w.deleteField<pos>();
+	if(!w.fieldExists<pos>())
+	{
+		std::cout << "SUCCESS" << std::endl;
+		w.setField<pos>(p);
+		std::cout << w.getField<pos>().x << std::endl;
+	}
 	
 	system("PAUSE");
 }

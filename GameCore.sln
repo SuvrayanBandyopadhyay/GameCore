@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.14.36212.18
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameCore", "GameCore\GameCore.vcxproj", "{3E2DCFE5-9925-4C98-B315-D3324A7AB9BD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47B064AB-20F9-4142-BB12-CC09212CA059} = {47B064AB-20F9-4142-BB12-CC09212CA059}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameCoreLib", "GameCoreLib\GameCoreLib.vcxproj", "{47B064AB-20F9-4142-BB12-CC09212CA059}"
 EndProject
