@@ -22,7 +22,10 @@ void World::erase(unsigned int ent)
 {
 	for (auto& i : components)
 	{
-		i->erase(ent);
+		if (i)
+		{
+			i->erase(ent);
+		}
 	}
 	free_ids.push(ent);
 }

@@ -119,8 +119,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>GameCoreLib.lib;luajit.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\lua-5.5.0\lua-5.5.0\bin;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GameCoreLib.lib;lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -139,7 +139,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\LuaJIT\msvc;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\Dell\Documents\Programming\Libraries\C++\lua-5.5.0\lua-5.5.0\bin;C:\Users\Dell\Documents\Programming\Game Development\GameCore\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>GameCoreLib.lib;lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

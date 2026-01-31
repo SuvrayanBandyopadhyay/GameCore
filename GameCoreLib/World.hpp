@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include<iostream>
 #include<queue>
 #include<any>
@@ -64,8 +64,6 @@ private:
 	std::vector<std::unique_ptr<IField>>fields;
 	//List of free id for reusability
 	std::stack<unsigned int> free_ids;
-	//The next id to assign
-	unsigned int next_id = 0;
 	unsigned int next_component = 0;//Next component to assign
 	unsigned int next_field = 0;//Next field to assign
 	//Function to get unique ids for each field
@@ -73,10 +71,14 @@ private:
 	unsigned int getFieldID();
 	
 public:
+	//The next id to assign
+	unsigned int next_id = 0;
 	template<typename T>
 	SparseSet<T>& getComponent();
 	template<typename T>
 	void update(unsigned int ent, T data);
+	template<typename T>
+	void update(unsigned int ent);
 	template<typename T>
 	void clear(unsigned int ent);
 	template<typename T>
@@ -122,6 +124,16 @@ void World::update(unsigned int ent, T data)
 }
 
 ///<summary>
+///Special update for tags
+///</summary>
+template<typename T>
+void World::update(unsigned int ent)
+{
+	auto& set = getComponent<T>();
+	set.update(ent);
+}
+
+///<summary>
 ///Deletes a component of an entity if it exists
 ///</summary>
 template<typename T>
@@ -147,7 +159,7 @@ T& World::get(int ent)
 template<typename T>
 unsigned int World::getFieldID()
 {
-	static unsigned int id = next_component++;
+	static unsigned int id = next_field++;
 	return id;
 }
 
@@ -158,7 +170,7 @@ template<typename T>
 bool World::fieldExists()
 {
 	static unsigned int id = getFieldID<T>();
-	if (!fields[id]) 
+	if (id>=fields.size()||!fields[id]) 
 	{
 		return false;
 	}
@@ -172,7 +184,10 @@ template<typename T>
 void World::deleteField()
 {
 	static unsigned int id = getFieldID<T>();
-	fields[id].reset();
+	if (id < fields.size())
+	{
+		fields[id].reset();
+	}
 }
 
 ///<summary>
@@ -202,4 +217,104 @@ void World::setField(T data)
 	(getField<T>()) = data;
 }
 
+
+///<summary>
+///Views allow us to easily select entities which have and dont have certain components from a world 
+/// </summary>
+
+template<typename... Cs>
+class View
+{
+	World* w;
+	std::vector<int>* driver_dense = nullptr;
+	std::vector<int*> sparse_maps;
+	std::tuple<std::vector<Cs>*...> data_arrays;
+
+public:
+	View(World& world) : w(&world)
+	{
+		(select_driver<Cs>(), ...);
+		(cache_component<Cs>(), ...);
+	}
+
+	class Iterator
+	{
+		View* view;
+		size_t idx;
+
+	public:
+		Iterator(View* v, size_t i) : view(v), idx(i)
+		{
+			skip_invalid();
+		}
+
+		void skip_invalid()
+		{
+			while (idx < view->driver_dense->size())
+			{
+				int e = (*view->driver_dense)[idx];
+				bool ok = true;
+
+				for (int* sparse : view->sparse_maps)
+				{
+					if (sparse[e] == -1)
+					{
+						ok = false;
+						break;
+					}
+				}
+
+				if (ok) break;
+				idx++;
+			}
+		}
+
+		Iterator& operator++()
+		{
+			idx++;
+			skip_invalid();
+			return *this;
+		}
+
+		bool operator!=(const Iterator& o) const
+		{
+			return idx != o.idx;
+		}
+
+		auto operator*()
+		{
+			int e = (*view->driver_dense)[idx];
+			return view->get_tuple(e);
+		}
+	};
+
+	Iterator begin() { return Iterator(this, 0); }
+	Iterator end() { return Iterator(this, driver_dense->size()); }
+
+private:
+	template<typename T>
+	void select_driver()
+	{
+		auto& comp = w->getComponent<T>();
+		if (!driver_dense || comp.dense.size() < driver_dense->size())
+			driver_dense = &comp.dense;
+	}
+
+	template<typename T>
+	void cache_component()
+	{
+		auto& comp = w->getComponent<T>();
+		sparse_maps.push_back(comp.sparse.data());
+		std::get<std::vector<T>*>(data_arrays) = &comp.data;
+	}
+
+	auto get_tuple(int entity)
+	{
+		return std::tuple<Cs&...>(
+			std::get<std::vector<Cs>*>(data_arrays)->at(
+				w->getComponent<Cs>().sparse[entity]
+			)...
+		);
+	}
+};
 

@@ -6,14 +6,16 @@ template<typename T>
 class SparseSet 
 {
 public:
-	std::vector<unsigned int>sparse;
-	std::vector<unsigned int>dense;
+	std::vector<int>sparse;
+	std::vector<int>dense;
 	std::vector<T>data;
+	unsigned int size();
 	void addEntity(unsigned int ent, T d);
 	bool find(unsigned int ent);
 	void remove(unsigned int ent);
 	void erase(unsigned int ent);
 	void update(unsigned int ent, T new_data);
+	void update(unsigned int ent);
 	T* get(unsigned int ent);
 };
 
@@ -55,6 +57,26 @@ void SparseSet<T>::update(unsigned int ent, T new_data)
 	}
 
 }
+//Special update operation for tags
+template<typename T>
+void SparseSet<T>::update(unsigned int ent)
+{
+	if (ent < sparse.size() && sparse[ent] != -1)
+	{
+		int id = sparse[ent];
+	}
+	else
+	{
+		if (sparse.size() == 0 || ent > sparse.size() - 1)
+		{
+			sparse.resize(ent + 1, -1);
+		}
+		sparse[ent] = (int)dense.size();
+		dense.push_back(ent);
+	}
+
+}
+
 //Deletion with error if element does not exist
 template<typename T>
 void SparseSet<T>::remove(unsigned int ent)
@@ -69,7 +91,8 @@ void SparseSet<T>::remove(unsigned int ent)
 		sparse[last_ent] = id;
 
 		dense.pop_back();
-		data.pop_back();
+		if(data.size()>0)
+			data.pop_back();
 		sparse[ent] = -1;
 
 	}
@@ -93,7 +116,9 @@ void SparseSet<T>::erase(unsigned int ent)
 		sparse[last_ent] = id;
 
 		dense.pop_back();
-		data.pop_back();
+
+		if(data.size()>0)
+			data.pop_back();
 		sparse[ent] = -1;
 
 	}
@@ -114,3 +139,12 @@ T* SparseSet<T>::get(unsigned int ent)
 		abort();
 	}
 }
+
+//Returns number of elements
+template<typename T>
+unsigned int SparseSet<T>::size() 
+{
+	return dense.size();
+}
+
+
