@@ -8,8 +8,8 @@
 #define TRIS 10000
 #include <vector>
 
-constexpr int TOTAL_ENTITIES = 500'000;
-constexpr int ACTIVE_ENTITIES = 50'000;
+constexpr int TOTAL_ENTITIES = 500000;
+constexpr int ACTIVE_ENTITIES = 50000;
 constexpr int TRI_COUNT = 100;
 
 struct Timer {
