@@ -161,23 +161,7 @@ public:
 
 int main()
 {
-	std::cout << "LUA TESTS\n";
-	LuaScript script;
-	script.loadFile("C:/Users/Dell/Documents/Programming/Game Development/GameCore/x64/Debug/l.lua");
-	script.run("test", 3, 51, 7);
-
-	bool flag = script.getReturn<bool>();        // true
-	std::string msg = script.getReturn<std::string>(); // "hello"
-	int sum = script.getReturn<int>();          // 12
-	std::cout << sum << "," << msg << "," << flag << std::endl;
-
-	script.run("test", 3, 52, 7);
-	flag = script.getReturn<bool>();        // true
-	msg = script.getReturn<std::string>(); // "hello"
-	sum = script.getReturn<int>();          // 12
-
-
-	std::cout << sum << "," << msg << "," << flag << std::endl;
+	
 
 	
 	LuaScript lua;
@@ -368,19 +352,16 @@ int main()
 #include<chrono>
 #include"World.hpp"
 #include"LuaScript.hpp"
+#include"View.hpp"
 #define ELEMENTS 100000
 #define FRAMES 10
 #define TRIS 10000
 #include <vector>
 
-
-// ========================== CONFIG ==========================
 constexpr int TOTAL_ENTITIES = 500'000;
 constexpr int ACTIVE_ENTITIES = 50'000;
 constexpr int TRI_COUNT = 100;
 
-
-// ========================== TIMER ==========================
 struct Timer {
 	std::chrono::high_resolution_clock::time_point t;
 	Timer() { t = std::chrono::high_resolution_clock::now(); }
@@ -391,9 +372,7 @@ struct Timer {
 	}
 };
 
-// ========================== DATA ==========================
 struct Triangle { float a, b, c; };
-
 struct Position { float x, y; };
 struct Velocity { float dx, dy; };
 struct Health { float hp; };
@@ -401,7 +380,75 @@ struct EnemyTag { char _; };
 struct StaticTag { char _; };
 struct Mesh { std::vector<Triangle> tris; };
 
-// ========================== OOP ENTITY ==========================
+struct Vec2
+{
+	float x;
+	float y;
+};
+
+struct Enemy
+{
+	Vec2 pos;
+	float health;
+};
+
+//Definition for Vec2
+template<>
+struct LuaType<Vec2>
+{
+	static void push(lua_State* L, const Vec2& v)
+	{
+		lua_newtable(L);
+
+		LuaValue<float>::push(L, v.x, "x");
+		LuaValue<float>::push(L, v.y, "y");
+	}
+
+	static Vec2 get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		Vec2 v{};
+
+		lua_getfield(L, index, "x");
+		v.x = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		lua_getfield(L, index, "y");
+		v.y = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		return v;
+	}
+};
+
+template<>
+struct LuaType<Enemy>
+{
+	static void push(lua_State* L, const Enemy& e)
+	{
+		lua_newtable(L);
+
+		LuaValue<Vec2>::push(L, e.pos, "pos");
+		LuaValue<float>::push(L, e.health, "health");
+	}
+
+	static Enemy get(lua_State* L, int index)
+	{
+		luaL_checktype(L, index, LUA_TTABLE);
+		Enemy e{};
+
+		lua_getfield(L, index, "pos");
+		e.pos = LuaValue<Vec2>::get(L, -1);
+		lua_pop(L, 1);
+
+		lua_getfield(L, index, "health");
+		e.health = LuaValue<float>::get(L, -1);
+		lua_pop(L, 1);
+
+		return e;
+	}
+};
+
 struct OOP_Entity {
 	Position pos;
 	Velocity vel;
@@ -414,7 +461,6 @@ struct OOP_Entity {
 	std::vector<Triangle> mesh;
 };
 
-// ========================== OOP TEST ==========================
 void oop_test()
 {
 	std::vector<OOP_Entity> entities(TOTAL_ENTITIES);
@@ -427,7 +473,7 @@ void oop_test()
 		entities[i].isEnemy = i < ACTIVE_ENTITIES;
 		entities[i].isStatic = !entities[i].isEnemy;
 
-		// Every entity owns mesh memory (cache killer)
+
 		entities[i].mesh.resize(TRI_COUNT);
 	}
 
@@ -435,7 +481,6 @@ void oop_test()
 
 	for (int f = 0; f < FRAMES; f++) {
 
-		// Movement system (wastes cache)
 		for (auto& e : entities) {
 			if (!e.isStatic) {
 				e.pos.x += e.vel.dx;
@@ -443,9 +488,7 @@ void oop_test()
 			}
 		}
 
-	
 
-		// AI system (wastes cache)
 		for (auto& e : entities) {
 			if (e.isEnemy && e.hp.hp < 50) {
 				e.pos.x += 0.5f;
@@ -457,12 +500,10 @@ void oop_test()
 	std::cout << "Elapsed time: " << t.ms() << " ms\n\n";
 }
 
-// ========================== ECS TEST ==========================
 void ecs_test()
 {
 	World w;
 
-	// Create static entities (most of the world)
 	for (int i = 0; i < TOTAL_ENTITIES - ACTIVE_ENTITIES; i++) {
 		auto e = w.createEntity();
 		w.update<Position>(e, { 0, 0 });
@@ -470,7 +511,6 @@ void ecs_test()
 		w.update<StaticTag>(e);
 	}
 
-	// Create active enemies
 	for (int i = 0; i < ACTIVE_ENTITIES; i++) {
 		auto e = w.createEntity();
 		w.update<Position>(e, { 0, 0 });
@@ -484,14 +524,12 @@ void ecs_test()
 
 	for (int f = 0; f < FRAMES; f++) {
 
-		// Movement system (ONLY entities that move)
 		for (auto [pos, vel] : View<Position, Velocity>(w)) {
 			pos.x += vel.dx;
 			pos.y += vel.dy;
 		}
 
 
-		// AI system (ONLY enemies with health)
 		for (auto [pos, hp] : View<Position, Health>(w)) {
 			if (hp.hp < 50) {
 				pos.x += 0.5f;
@@ -503,9 +541,38 @@ void ecs_test()
 	std::cout << "Elapsed time: " << t.ms() << " ms\n\n";
 }
 
-// ========================== MAIN ==========================
 int main()
 {
+	//oops vs ecs
 	oop_test();
 	ecs_test();
+	//Lua test
+	system("PAUSE");
+
+	//Standard tests
+	std::cout << "LUA TESTS\n";
+	LuaScript script;
+	script.loadFile("l.lua");
+	script.run("test", 3, 51, 7);
+
+	bool flag = script.getReturn<bool>();        // true
+	std::string msg = script.getReturn<std::string>(); // "hello"
+	int sum = script.getReturn<int>();          // 12
+	std::cout << sum << "," << msg << "," << flag << std::endl;
+
+	script.run("test", 3, 52, 7);
+	flag = script.getReturn<bool>();        // true
+	msg = script.getReturn<std::string>(); // "hello"
+	sum = script.getReturn<int>();          // 12
+	std::cout << sum << "," << msg << "," << flag << std::endl;
+
+	LuaScript lua;
+	lua.loadFile("enemy.lua");
+	Enemy enemy{ {100.0f,50.0f},100.0f };
+	lua.run("update_enemy", 1, enemy);
+	Enemy updated = lua.getReturn<Enemy>();
+
+	printf("Pos: %.1f %.1f\n", updated.pos.x, updated.pos.y);
+	printf("Health after update: %.1f\n", updated.health);
+	system("PAUSE");
 }

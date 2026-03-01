@@ -110,6 +110,9 @@
     <ClInclude Include="LuaScript.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="View.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
